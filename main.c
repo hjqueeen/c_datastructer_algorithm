@@ -17,6 +17,17 @@ Node *init() {
     return NULL;
 }
 
+void pushNode(Node **top, Node *node) {
+    Node *new = (Node *) malloc(sizeof(Node));
+    if (new == NULL) {
+        exit(1);
+    }
+    new->data = node->data;
+    new->operator = node->operator;
+    new->next = *top;
+    *top = new;
+}
+
 void pushData(Node **top, int data) {
     Node *new = (Node *) malloc(sizeof(Node));
     if (new == NULL) {
@@ -82,9 +93,14 @@ void printStack(Node **top) {
     if (top != NULL) {
         Node *current = *top;
         while (current != NULL) {
-            printf("%d\n", current->data);
+            if (current->operator == '\0')
+                printf("%d", current->data);
+            else
+                printf("%c", current->operator);
+
             current = current->next;
         }
+        printf("\n");
     }
 }
 
@@ -110,48 +126,74 @@ int cprOperator(char c, char stackOperator) {
     }
 }
 
-void infixToPostfix(char *infix, char *postfix) {
+void infixToPostfix(char *infix, Node **postfix) {
     int i = 0;
     int j = 0;
     while (infix[i] != '\0') {
         if (isdigit(infix[i])) {
-            postfix[j] = infix[i];
-            j++;
+            int number = 0;
+            // When two or more digits are received as input, convert to decimal.
+            while (isdigit(infix[i])) {
+                number = number * 10 + (infix[i] - '0');
+                i++;
+            }
+            pushData(postfix, number);
         } else if (isOperator(infix[i])) {
             if (cprOperator(infix[i], topChar(&stack)) == 1) {
-                postfix[j] = popChar(&stack);
-                j++;
+                pushOperator(postfix, popChar(&stack));
                 pushOperator(&stack, infix[i]);
             } else if (cprOperator(infix[i], topChar(&stack)) == 0) {
                 pushOperator(&stack, infix[i]);
             } else if (cprOperator(infix[i], topChar(&stack)) == -1) {
                 while (topChar(&stack) != '(') {
-                    postfix[j] = popChar(&stack);
-                    j++;
+                    pushOperator(postfix, popChar(&stack));
                 }
                 popChar(&stack);
             }
+            i++;
         }
-        i++;
+
     }
 
     while (topChar(&stack) != '\0') {
-        postfix[j] = popChar(&stack);
-        j++;
+        pushOperator(postfix, popChar(&stack));
     }
 }
 
+void deleteStack(Node **top) {
+    Node *current = *top;
+    while (current != NULL) {
+        *top = current->next;
+        free(current);
+        current = *top;
+    }
+}
+
+void inverseStack(Node **temp, Node **new) {
+    Node *current = *temp;
+    Node *newNode = *new;
+    while (*temp != NULL) {
+        pushNode(new, *temp);
+        pop(temp);
+    }
+}
 
 int main() {
     char infixExpression[MAX_SIZE];
-    char postfixExpression[MAX_SIZE];
+//    char postfixExpression[MAX_SIZE];
+    Node *temp = NULL;
+    Node *postfixExpression = NULL;
 
     printf("Enter the infix expression\n");
     fgets(infixExpression, MAX_SIZE, stdin);
     infixExpression[strcspn(infixExpression, "\n")] = '\0';
 
-    infixToPostfix(infixExpression, postfixExpression);
-    printf("%s\n", postfixExpression);
+    infixToPostfix(infixExpression, &temp);
+    printStack(&temp);
+    inverseStack(&temp, &postfixExpression);
+    printStack(&postfixExpression);
 
+    deleteStack(&postfixExpression);
+    deleteStack(&stack);
     return 0;
 }
