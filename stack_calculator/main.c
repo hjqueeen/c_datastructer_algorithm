@@ -257,5 +257,5 @@ int main() {
     deleteStack(&stack);
     deleteStack(&temp);
 
-    return 1;
+    return 0;
 }
