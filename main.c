@@ -94,9 +94,9 @@ void printStack(Node **top) {
         Node *current = *top;
         while (current != NULL) {
             if (current->operator == '\0')
-                printf("%d", current->data);
+                printf("%d ", current->data);
             else
-                printf("%c", current->operator);
+                printf("%c ", current->operator);
 
             current = current->next;
         }
@@ -193,16 +193,16 @@ int caculatePostfix(Node **top) {
                 pop(&calc);
                 switch (current->operator) {
                     case '+':
-                        number = a + b;
+                        number = b + a;
                         break;
                     case '-':
-                        number = a - b;
+                        number = b - a;
                         break;
                     case '*':
-                        number = a * b;
+                        number = b * a;
                         break;
                     case '/':
-                        number = a / b;
+                        number = b / a;
                         break;
                 }
                 pushData(&calc, number);
@@ -225,6 +225,7 @@ int main() {
 
     infixToPostfix(infixExpression, &temp);
     inverseStack(&temp, &postfixExpression);
+    printf("Postfix: ");
     printStack(&postfixExpression);
 
     printf("Result: %d", caculatePostfix(&postfixExpression));
