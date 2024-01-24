@@ -170,17 +170,52 @@ void deleteStack(Node **top) {
 }
 
 void inverseStack(Node **temp, Node **new) {
-    Node *current = *temp;
-    Node *newNode = *new;
     while (*temp != NULL) {
         pushNode(new, *temp);
         pop(temp);
     }
 }
 
+int caculatePostfix(Node **top) {
+    Node *calc = NULL;
+    Node *current = *top;
+    int number = 0;
+    while (current != NULL) {
+        if (current->operator == '\0') { // This node has data
+            pushData(&calc, current->data);
+        } else {
+            if (isOperator(current->operator)) {
+                int a = topInt(&calc);
+                pop(top);
+                pop(&calc);
+                int b = topInt(&calc);
+                pop(top);
+                pop(&calc);
+                switch (current->operator) {
+                    case '+':
+                        number = a + b;
+                        break;
+                    case '-':
+                        number = a - b;
+                        break;
+                    case '*':
+                        number = a * b;
+                        break;
+                    case '/':
+                        number = a / b;
+                        break;
+                }
+                pushData(&calc, number);
+            }
+        }
+        current = current->next;
+    }
+    return number;
+}
+
 int main() {
     char infixExpression[MAX_SIZE];
-//    char postfixExpression[MAX_SIZE];
+
     Node *temp = NULL;
     Node *postfixExpression = NULL;
 
@@ -189,11 +224,13 @@ int main() {
     infixExpression[strcspn(infixExpression, "\n")] = '\0';
 
     infixToPostfix(infixExpression, &temp);
-    printStack(&temp);
     inverseStack(&temp, &postfixExpression);
     printStack(&postfixExpression);
 
+    printf("Result: %d", caculatePostfix(&postfixExpression));
+
     deleteStack(&postfixExpression);
     deleteStack(&stack);
+    deleteStack(&temp);
     return 0;
 }
