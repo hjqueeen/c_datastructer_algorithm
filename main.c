@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 
-#define  MAX_SIZE 50
+#define MAX_SIZE 50
 
 typedef struct Node {
     int data;
@@ -17,6 +18,7 @@ Node *init() {
     return NULL;
 }
 
+// Push a node onto the stack
 void pushNode(Node **top, Node *node) {
     Node *new = (Node *) malloc(sizeof(Node));
     if (new == NULL) {
@@ -28,6 +30,7 @@ void pushNode(Node **top, Node *node) {
     *top = new;
 }
 
+// Push a data node onto the stack
 void pushData(Node **top, int data) {
     Node *new = (Node *) malloc(sizeof(Node));
     if (new == NULL) {
@@ -39,6 +42,7 @@ void pushData(Node **top, int data) {
     *top = new;
 }
 
+// Push an operator node onto the stack
 void pushOperator(Node **top, char operator) {
     Node *new = (Node *) malloc(sizeof(Node));
     if (new == NULL) {
@@ -50,6 +54,7 @@ void pushOperator(Node **top, char operator) {
     *top = new;
 }
 
+// Pop the top node from the stack
 void pop(Node **top) {
     if (*top == NULL) {
         return;
@@ -60,7 +65,7 @@ void pop(Node **top) {
     }
 }
 
-
+// Pop the top operator from the stack and return it
 char popChar(Node **top) {
     if (*top == NULL) {
         return '\0';
@@ -73,6 +78,7 @@ char popChar(Node **top) {
     }
 }
 
+// Get the top operator from the stack without removing it
 char topChar(Node **top) {
     if (*top == NULL) {
         return '\0';
@@ -81,6 +87,7 @@ char topChar(Node **top) {
     }
 }
 
+// Get the top data from the stack without removing it
 int topInt(Node **top) {
     if (*top == NULL) {
         return INT_MIN;
@@ -89,6 +96,7 @@ int topInt(Node **top) {
     }
 }
 
+// Print the stack elements
 void printStack(Node **top) {
     if (top != NULL) {
         Node *current = *top;
@@ -104,18 +112,20 @@ void printStack(Node **top) {
     }
 }
 
+// Check if a character is an operator
 int isOperator(char c) {
     return (c == '+' || c == '-' || c == '*' || c == '/' || c == '(' || c == ')');
 }
 
-int cprOperator(char c, char stackOperator) {
+// Compare operators based on precedence
+int compareOperator(char c, char stackOperator) {
     switch (c) {
         case '+':
         case '-':
             switch (stackOperator) {
                 case '*':
                 case '/':
-                    return 1;
+                    return 1; // Higher precedence
                 default:
                     return 0;
             }
@@ -126,9 +136,9 @@ int cprOperator(char c, char stackOperator) {
     }
 }
 
+// Convert infix expression to postfix expression
 void infixToPostfix(char *infix, Node **postfix) {
     int i = 0;
-    int j = 0;
     while (infix[i] != '\0') {
         if (isdigit(infix[i])) {
             int number = 0;
@@ -139,27 +149,34 @@ void infixToPostfix(char *infix, Node **postfix) {
             }
             pushData(postfix, number);
         } else if (isOperator(infix[i])) {
-            if (cprOperator(infix[i], topChar(&stack)) == 1) {
+            if (compareOperator(infix[i], topChar(&stack)) == 1) {
+                // If the operator has higher precedence, push the top operator from the stack to the postfix expression
                 pushOperator(postfix, popChar(&stack));
+                // Push the current operator onto the stack
                 pushOperator(&stack, infix[i]);
-            } else if (cprOperator(infix[i], topChar(&stack)) == 0) {
+            } else if (compareOperator(infix[i], topChar(&stack)) == 0) {
+                // If operators have the same precedence, push the current operator onto the stack
                 pushOperator(&stack, infix[i]);
-            } else if (cprOperator(infix[i], topChar(&stack)) == -1) {
+            } else if (compareOperator(infix[i], topChar(&stack)) == -1) {
+                // If the current operator is ')', pop operators from the stack and push them to the postfix expression
+                // until '(' is encountered on the stack
                 while (topChar(&stack) != '(') {
                     pushOperator(postfix, popChar(&stack));
                 }
+                // Pop '(' from the stack
                 popChar(&stack);
             }
             i++;
         }
-
     }
 
+    // Pop any remaining operators from the stack to the postfix expression
     while (topChar(&stack) != '\0') {
         pushOperator(postfix, popChar(&stack));
     }
 }
 
+// Delete the entire stack
 void deleteStack(Node **top) {
     Node *current = *top;
     while (current != NULL) {
@@ -169,6 +186,7 @@ void deleteStack(Node **top) {
     }
 }
 
+// Inverse the order of elements in the stack
 void inverseStack(Node **temp, Node **new) {
     while (*temp != NULL) {
         pushNode(new, *temp);
@@ -176,37 +194,36 @@ void inverseStack(Node **temp, Node **new) {
     }
 }
 
-int caculatePostfix(Node **top) {
+// Calculate the result of the postfix expression
+int calculatePostfix(Node **top) {
     Node *calc = NULL;
     Node *current = *top;
     int number = 0;
     while (current != NULL) {
         if (current->operator == '\0') { // This node has data
             pushData(&calc, current->data);
-        } else {
-            if (isOperator(current->operator)) {
-                int a = topInt(&calc);
-                pop(top);
-                pop(&calc);
-                int b = topInt(&calc);
-                pop(top);
-                pop(&calc);
-                switch (current->operator) {
-                    case '+':
-                        number = b + a;
-                        break;
-                    case '-':
-                        number = b - a;
-                        break;
-                    case '*':
-                        number = b * a;
-                        break;
-                    case '/':
-                        number = b / a;
-                        break;
-                }
-                pushData(&calc, number);
+        } else if (isOperator(current->operator)) { // This node has an operator
+            int a = topInt(&calc);
+            pop(top);
+            pop(&calc);
+            int b = topInt(&calc);
+            pop(top);
+            pop(&calc);
+            switch (current->operator) {
+                case '+':
+                    number = b + a;
+                    break;
+                case '-':
+                    number = b - a;
+                    break;
+                case '*':
+                    number = b * a;
+                    break;
+                case '/':
+                    number = b / a;
+                    break;
             }
+            pushData(&calc, number);
         }
         current = current->next;
     }
@@ -219,19 +236,26 @@ int main() {
     Node *temp = NULL;
     Node *postfixExpression = NULL;
 
-    printf("Enter the infix expression\n");
+    printf("Enter the infix expression:\n");
     fgets(infixExpression, MAX_SIZE, stdin);
     infixExpression[strcspn(infixExpression, "\n")] = '\0';
 
     infixToPostfix(infixExpression, &temp);
+
+    // Reverse the order of elements in the temporary stack to get the postfix expression
     inverseStack(&temp, &postfixExpression);
+
+    // Print the postfix expression
     printf("Postfix: ");
     printStack(&postfixExpression);
 
-    printf("Result: %d", caculatePostfix(&postfixExpression));
+    // Calculate and print the result of the postfix expression
+    printf("Result: %d", calculatePostfix(&postfixExpression));
 
+    // Delete the dynamically allocated memory used for the stacks
     deleteStack(&postfixExpression);
     deleteStack(&stack);
     deleteStack(&temp);
+
     return 0;
 }
