@@ -12,6 +12,7 @@ Hello there! This repository contains implementations of basic data structures a
 2. *Queue:* [queue.c](https://github.com/hjqueeen/c_datastructer_algorithm/tree/main/02_00_queue)
    - Queue implementation using an array.
    - Queue implementation using a linked list.
+   - [Circular Queue Using an Array](https://github.com/hjqueeen/c_datastructer_algorithm/tree/main/02_01_circular_queue)
 
 3. *Linked List:* [linked_list.c](linked_list.c)
    - Implementation of a singly linked list.
