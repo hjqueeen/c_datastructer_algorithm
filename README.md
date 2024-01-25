@@ -7,9 +7,9 @@ Hello there! This repository contains implementations of basic data structures a
 1. *Stack:* [stack.c](stack.c)
    - Implementation of a stack using dynamic memory allocation.
    - Stack implementation using a linked list.
-   - Example of a calculator converting infix to postfix notation.
+   - [Example of a calculator converting infix to postfix notation.](https://github.com/hjqueeen/c_datastructer_algorithm/tree/main/01_01_stack_calculator)
 
-2. *Queue:* [queue.c](queue.c)
+2. *Queue:* [queue.c](https://github.com/hjqueeen/c_datastructer_algorithm/tree/main/02_00_queue)
    - Queue implementation using an array.
    - Queue implementation using a linked list.
 
