@@ -44,17 +44,20 @@ int dequeue(Queue *queue) {
 
 void printQueue(Queue *queue) {
     int i = queue->front;
-    while (i != (queue->rear + 1) % MAX_SIZE) {
+    do {
         printf("%d ", queue->array[i]);
         i = (i + 1) % MAX_SIZE;
-    }
+    } while (i != (queue->rear + 1) % MAX_SIZE);
     printf("\n");
+}
+void deleteQueue(Queue *queue){
+    free(queue->array);
 }
 
 int main() {
     Queue circular_queue;
     init(&circular_queue);
-    char inputCode[2];
+    char inputCode[MAX_SIZE];
     int code = -1;
     do {
         printf("=======================\n");
@@ -85,7 +88,11 @@ int main() {
             case 3:
                 printQueue(&circular_queue);
                 break;
+            case 0:
+                deleteQueue(&circular_queue);
+                break;
             default:
+                printf("Wrong input. Try again.\n");
                 break;
         }
     } while (code != 0);
